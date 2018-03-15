@@ -95,5 +95,5 @@ ylabel('Angle w.r.t to North in Degrees')
 %solution
 
 %output to csv file
-csvwrite('Output_Profile.csv','output')
+csvwrite('Output_Profile.csv',output)
 
