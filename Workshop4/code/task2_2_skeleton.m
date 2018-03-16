@@ -59,7 +59,7 @@ initialEstimate = Values();
 % translation (even though translation isn't a point) and a rotation
 % and build the results up.
 priorMean = Pose2(xTrue(3), Point2(xTrue(1:2)));
-priorNoise = noiseModel.Gaussian.Covariance(P0);
+measurementNoise = noiseModel.Gaussian.Covariance(P0);
 
 xGTSAMStore = NaN(3, steps + 1);
 PGTSAMStore = NaN(3, steps + 1);
@@ -72,7 +72,7 @@ initialEstimate.insert(poseKey, priorMean);
 
 % Set up the initial conditions. This prior pose factor tells GTSAM that we
 % know the initial conditions with a prescribed level of accuracy.
-graph.add(PriorFactorPose2(poseKey, priorMean, priorNoise));
+graph.add(PriorFactorPose2(poseKey, priorMean, measurementNoise));
 
 % Iterate through the experimental run.
 
@@ -98,6 +98,7 @@ for k = 1:steps
     % Get the measurement. We assume that it's only available for a few
     % time steps. The measurement itself is corrupted by noise.s
     measurementReceived = (k < 10) || (k > 80);
+
     z = xTrue + sqrtm(RZ) * randn(3, 1);
     
     %% Kalman filter code
@@ -154,8 +155,9 @@ for k = 1:steps
     
     %% TODO:
     % Compute the relative translation and rotation
-    relativeTranslation = Point2([0 0]');   
-    relativeRotation = 0;
+    relativeTranslation = Point2([u(1) * cos(xEst(3) + 0.5 * u(2))...
+                                  u(1) * sin(xEst(3) + 0.5 * u(2))]');   
+    relativeRotation = u(2);
     
     % Assemble the relative transformation.
     relativePose = Pose2(relativeRotation, relativeTranslation);
@@ -164,7 +166,7 @@ for k = 1:steps
     % Compute the covariance on this transformation. Note that the control
     % input enters into a nonlinear way, so you'll have to linearise again
     % to figure out how the noise enters.
-    relativePoseCovariance = eye(3);
+    relativePoseCovariance = eye(3)*0.01;
     
     % This is needed to provide numerical stability for GTSAM. Do not remove!    
     relativePoseCovariance = relativePoseCovariance + 1e-6 * eye(3);
@@ -190,7 +192,8 @@ for k = 1:steps
     % have to use the trick above to create the pose from the observation.
     % You will also need to set the covariance on this to RZ.        
     if (measurementReceived == true)
-        
+        measurementNoise = noiseModel.Diagonal.Sigmas([RZ(1,1); RZ(2,2); RZ(3,3)]);
+        graph.add(PriorFactorPose2(poseKey, Pose2(z(1),z(2),z(3)), measurementNoise));
     end
 end
 
