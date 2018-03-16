@@ -24,8 +24,12 @@ classdef OdometryOnlyLocalizationSystem < minislam.localization.ISAMLocalization
             % the form [speed, turn angle rate].
             
             vDT = dT * this.u(1);
-            relativePose = gtsam.Pose2([vDT;0; 0]);           
+            phi = this.currentVehiclePose.theta;
+            relativePose = gtsam.Pose2([vDT*cos(phi + 0.5*dT*this.u(2));
+                                        vDT*sin(phi + 0.5*dT*this.u(2));
+                                        dT*this.u(2)]);           
             relativePoseCovariance = diag([0.2 0.1 0.1])*dT^2;
+
         end
     end
 end

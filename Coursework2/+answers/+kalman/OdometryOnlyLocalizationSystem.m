@@ -26,12 +26,17 @@ classdef OdometryOnlyLocalizationSystem < minislam.localization.KalmanFilterLoca
             
             % The previous mean in the Kalmnan filter is this.xEst
             xPred = this.xEst;
-            xPred(1) = xPred(1) + vDT;
+            xPred(1) = xPred(1) + vDT * cos(xPred(3) + 0.5*this.u(2));
+            xPred(2) = xPred(2) + vDT * sin(xPred(3) + 0.5*this.u(2));
+            xPred(3) = xPred(3) + this.u(2);
 
             % The covariance prediction equation is
-            % PPred = Fd * PEst * Fd' + Qd;
-            Fd = eye(3);
+            Fd = [1, 0, -vDT*sin(this.xEst(3) + this.u(2)/2);
+                  0, 1,  vDT*cos(this.xEst(3) + this.u(2)/2);
+                  0, 0,  1];
             Qd = diag([0.2 0.1 0.1])*dT^2;
+            this.PPred = Fd * this.PEst * Fd' + Qd;
+
         end
     end
 end
