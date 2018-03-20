@@ -20,14 +20,14 @@ classdef GPSLocalizationSystem < answers.gtsam.OdometryOnlyLocalizationSystem
             % insert it into the graph. You will need:
             
             % Specify the measurement noise model, e.g.,
-            % gpsCovariance = zeros(3);
-            % gpsNoise = gtsam.noiseModel.Gaussian.Covariance(gpsCovariance);
+            gpsCovariance = zeros(3);
+            gpsNoise = gtsam.noiseModel.Gaussian.Covariance(gpsCovariance);
             
             % Construct the suitable factor
             %gpsObservationFactor = ...
             
             % Insert it into the graph. Use this method:
-            %this.addNewFactor(gpsObservationFactor);
+            %this.add(gpsObservationFactor);
         end
     end    
 end

@@ -12,12 +12,12 @@ kalmanFilterGPSSystem = answers.kalman.GPSLocalizationSystem();
 kalmanResults = minislam.mainLoop(simulator, kalmanFilterGPSSystem);
 
 % Run the two simulations
-gtsamGPSSystem = answers.gtsam.GPSLocalizationSystem();
-gtsamResults = minislam.mainLoop(simulator, gtsamGPSSystem);
+%gtsamGPSSystem = answers.gtsam.GPSLocalizationSystem();
+%gtsamResults = minislam.mainLoop(simulator, gtsamGPSSystem);
 
 % Plot optimisation times
 minislam.graphics.FigureManager.getFigure('Optimization times');
 clf
 plot(kalmanResults.optimizationTimes)
-hold on
-plot(gtsamResults.optimizationTimes)
+%hold on
+%plot(gtsamResults.optimizationTimes)
